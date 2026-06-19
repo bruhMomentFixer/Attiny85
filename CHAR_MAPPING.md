@@ -1,128 +1,56 @@
-# Spanish Keyboard Layout Character Mapping
+# DigiSpark ATTiny85 HID Payloads — Spanish Keyboard Layout Adaptation
 
-This document describes the character substitutions used in this fork to adapt selected DigiSpark ATTiny85 USB HID payloads from an English/US keyboard layout to a Spanish keyboard layout.
+> Fork of `MTK911/Attiny85` focused on analyzing, testing, and adapting DigiSpark ATTiny85 USB HID payloads for Spanish keyboard layouts.
 
-Most USB HID payloads are written assuming an English/US keyboard layout. When those keystrokes are executed on a target system configured with a Spanish keyboard layout, some characters are interpreted differently. This can break command syntax, PowerShell payloads, file paths, URLs, redirections, pipes, and script blocks.
+## Overview
 
-The goal of this document is to keep track of the character mapping used during the adaptation process.
+This repository is a fork of the original `MTK911/Attiny85` project, which contains DigiSpark ATTiny85 USB HID payloads inspired by Rubber Ducky-style attacks.
 
-## Scope
+The purpose of this fork is to document, test, and adapt selected payloads so they work correctly on systems configured with a Spanish keyboard layout.
 
-This mapping applies to the Spanish keyboard layout adaptations included in this fork.
+DigiSpark ATTiny85 boards can emulate a USB keyboard through the `DigiKeyboard.h` library. This allows the device to send automated keystrokes to a computer when plugged in as a USB HID device.
 
-The purpose of these changes is to improve compatibility when testing DigiSpark ATTiny85 HID payloads in controlled environments using Spanish keyboard layouts.
+This type of project is useful for:
 
-This document is intended for:
+* Red Team training
+* Penetration testing labs
+* HID attack simulation
+* Payload testing in controlled environments
+* Keyboard layout compatibility research
+* Understanding USB HID-based attack techniques
 
-* Authorized Red Team labs
-* Penetration testing practice
-* HID payload compatibility testing
-* Keyboard layout research
-* Educational environments
+## My Contributions
 
-## Character Mapping Table
+This fork focuses on Spanish keyboard layout compatibility.
 
-| Intended character in EN/US payload | ES layout adaptation                               | Notes                                                                                                   |
-| ----------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `/`                                 | `&`                                                | Commonly used in command switches and paths. Example: `/k` becomes `&k`.                                |
-| `-`                                 | `/`                                                | Commonly used in command parameters. Example: `-Path` becomes `/Path`.                                  |
-| `:`                                 | `>`                                                | Commonly used in URLs, drive paths, and command syntax. Example: `https:` becomes `https>`.             |
-| `=`                                 | `)`                                                | Commonly used in assignments and parameters. Example: `key=clear` becomes `key)clear`.                  |
-| `"`                                 | `@`                                                | Used to generate double quotes in quoted command strings.                                               |
-| `'`                                 | `@` or replaced with double quotes                 | In some PowerShell contexts, single quotes can be replaced with double quotes depending on the command. |
-| `*`                                 | `}`                                                | Used in wildcard expressions. Example: `*Wi*.xml` becomes `}Wi}.xml`.                                   |
-| `(`                                 | `*`                                                | Used in PowerShell expressions and method calls.                                                        |
-| `)`                                 | `(`                                                | Used in PowerShell expressions and method calls.                                                        |
-| `;`                                 | `<`                                                | Used as a command separator in PowerShell strings.                                                      |
-| `&`                                 | `^`                                                | Used where `&` is required by shell or PowerShell syntax.                                               |
-| `>`                                 | `DigiKeyboard.sendKeyStroke(100, MOD_SHIFT_RIGHT)` | Used for output redirection.                                                                            |
-| `\|`                                | `DigiKeyboard.sendKeyStroke(30, MOD_ALT_RIGHT)`    | Used for PowerShell pipes.                                                                              |
-| `[`                                 | `DigiKeyboard.sendKeyStroke(47, MOD_ALT_RIGHT)`    | Used for PowerShell type notation, such as `[byte[]]`.                                                  |
-| `]`                                 | `DigiKeyboard.sendKeyStroke(48, MOD_ALT_RIGHT)`    | Used for PowerShell type notation, such as `[byte[]]`.                                                  |
-| `{`                                 | `DigiKeyboard.sendKeyStroke(52, MOD_ALT_RIGHT)`    | Used for PowerShell script blocks.                                                                      |
-| `}`                                 | `DigiKeyboard.sendKeyStroke(50, MOD_ALT_RIGHT)`    | Used for PowerShell script blocks.                                                                      |
+Main contributions include:
 
-## Examples
+* Adaptation of selected DigiSpark ATTiny85 HID payloads for Spanish keyboard layouts.
+* Testing of `DigiKeyboard.print()` and `DigiKeyboard.sendKeyStroke()` behavior on Spanish keyboard configurations.
+* Replacement or modification of characters that behave differently between English/US and Spanish layouts.
+* Documentation of keyboard layout issues affecting command-line payloads.
+* Creation of a character mapping reference for Spanish layout adaptation.
+* Preservation of the original upstream README as `README_ORIGINAL.md`.
+* Addition of a `NOTICE.md` file documenting the fork relationship and attribution to the upstream project.
 
-### Command Switches
+Modified payload categories include:
 
-English/US layout payload:
+* Wi-Fi credential extraction payload adaptation
+* Instant shell payload adaptation
 
-```text
-cmd /k mode con: cols=15 lines=1
-```
+The original payload logic belongs to the upstream project. This fork mainly documents and adapts selected payloads for Spanish keyboard layout compatibility.
 
-Spanish layout adaptation:
+## Technical Research Notes
 
-```text
-cmd &k mode con> cols)15 lines)1
-```
+This project also documents the technical background behind the keyboard layout adaptation process.
 
-### PowerShell Parameters
+The main issue is that DigiSpark ATTiny85 payloads do not directly send final text characters to the operating system. Instead, they emulate keyboard input using USB HID usage codes.
 
-English/US layout payload:
+The final character produced on the target system depends on the active keyboard layout configured in the operating system.
 
-```text
-powershell Select-String -Path *Wi*.xml -Pattern "keyMaterial"
-```
+For example, a HID key combination that produces `/` on an English/US keyboard layout may produce a different character on a Spanish keyboard layout.
 
-Spanish layout adaptation:
-
-```text
-powershell Select/String /Path }Wi}.xml /Pattern @keyMaterial@
-```
-
-### Output Redirection
-
-For the `>` character, explicit key stroke generation is used instead of `DigiKeyboard.print()`:
-
-```cpp
-DigiKeyboard.sendKeyStroke(100, MOD_SHIFT_RIGHT);
-```
-
-This is used when a command needs output redirection.
-
-### PowerShell Pipe
-
-For the `|` character, explicit key stroke generation is used:
-
-```cpp
-DigiKeyboard.sendKeyStroke(30, MOD_ALT_RIGHT);
-```
-
-This is useful for PowerShell pipelines.
-
-### PowerShell Brackets
-
-For square brackets used in PowerShell type notation:
-
-```cpp
-DigiKeyboard.sendKeyStroke(47, MOD_ALT_RIGHT); // [
-DigiKeyboard.sendKeyStroke(48, MOD_ALT_RIGHT); // ]
-```
-
-Example use case:
-
-```text
-[byte[]]
-```
-
-### PowerShell Script Blocks
-
-For curly braces used in PowerShell script blocks:
-
-```cpp
-DigiKeyboard.sendKeyStroke(52, MOD_ALT_RIGHT); // {
-DigiKeyboard.sendKeyStroke(50, MOD_ALT_RIGHT); // }
-```
-
-## Why This Mapping Is Needed
-
-DigiSpark ATTiny85 payloads use `DigiKeyboard.print()` and `DigiKeyboard.sendKeyStroke()` to emulate keyboard input.
-
-However, the target operating system interprets those keystrokes according to its active keyboard layout. A payload written for an English/US keyboard may therefore type incorrect characters on a Spanish keyboard layout.
-
-This is especially relevant for characters such as:
+This is especially relevant for command-line payloads, where characters such as the following are frequently required:
 
 ```text
 / \ | @ # ~ " ' : ; { } [ ] ( ) = + - _
@@ -130,38 +58,237 @@ This is especially relevant for characters such as:
 
 Incorrect character output can break:
 
-* PowerShell commands
 * CMD commands
+* PowerShell commands
 * File paths
 * URLs
 * Webhook URLs
-* Redirections
+* Redirection operators
 * Pipes
-* Encoded commands
 * Script blocks
+* Encoded commands
 * Download commands
 * Payload execution syntax
 
-## Notes
+## HID Usage IDs and DigiKeyboard
 
-This mapping was created by comparing the original payloads with the Spanish-adapted versions included in this fork.
+DigiSpark ATTiny85 payloads commonly use the `DigiKeyboard.h` library.
 
-Some substitutions are handled by replacing printable characters directly inside strings.
+Reference implementation:
 
-Other characters are generated with explicit `DigiKeyboard.sendKeyStroke()` calls because they are more reliable than direct printing on a Spanish keyboard layout.
+```text
+https://github.com/digistump/DigistumpArduino/blob/master/digistump-avr/libraries/DigisparkKeyboard/DigiKeyboard.h
+```
 
-## Limitations
+Inside `DigiKeyboard.h`, keyboard input is represented through USB HID keyboard usage values and modifier bits.
 
-This mapping is based on the tested Spanish keyboard layout environment used during the adaptation process.
+Examples of modifier definitions include:
 
-Different systems, keyboard configurations, language settings, or DigiKeyboard versions may require additional adjustments.
+```cpp
+#define MOD_CONTROL_LEFT    (1 << 0)
+#define MOD_SHIFT_LEFT      (1 << 1)
+#define MOD_ALT_LEFT        (1 << 2)
+#define MOD_GUI_LEFT        (1 << 3)
+#define MOD_CONTROL_RIGHT   (1 << 4)
+#define MOD_SHIFT_RIGHT     (1 << 5)
+#define MOD_ALT_RIGHT       (1 << 6)
+#define MOD_GUI_RIGHT       (1 << 7)
+```
 
-Always test payload behavior in an isolated and authorized lab environment before using it in any Red Team or penetration testing engagement.
+Examples of keyboard usage IDs include:
 
-## Legal and Ethical Notice
+```cpp
+#define KEY_A       4
+#define KEY_B       5
+#define KEY_C       6
+#define KEY_D       7
+#define KEY_E       8
+#define KEY_F       9
+#define KEY_G       10
+#define KEY_H       11
+#define KEY_I       12
+#define KEY_J       13
+```
 
-This document is provided for educational and authorized security testing purposes only.
+These values are based on the USB HID Usage Tables specification, specifically the Keyboard/Keypad Page.
 
-The mapping is intended to help understand and adapt USB HID payload behavior across keyboard layouts.
+Official USB HID Usage Tables reference:
 
-Do not use these payloads or adaptations against systems you do not own or do not have explicit permission to test.
+```text
+https://usb.org/document-library/hid-usage-tables-17
+```
+
+## Keyboard Layout Problem
+
+Many HID payloads are written assuming an English/US keyboard layout.
+
+However, when the target system uses a Spanish keyboard layout, the same HID usage codes may produce different output characters.
+
+This means that a payload that works correctly on an English/US layout may fail on a Spanish layout because characters such as `/`, `-`, `:`, `=`, `"`, `|`, `[`, `]`, `{`, and `}` may not be generated correctly.
+
+To solve this, this fork documents and applies character substitutions and explicit `DigiKeyboard.sendKeyStroke()` calls for selected payloads.
+
+The character mapping used during the adaptation process is documented in:
+
+```text
+CHAR_MAPPING.md
+```
+
+## Local Reference Documentation
+
+During the research process, the USB HID Usage Tables specification was used as a reference.
+
+A local copy may exist in the repository working directory as:
+
+```text
+hut1_7.pdf
+```
+
+However, for public repositories, it is recommended to link to the official USB.org document instead of redistributing the PDF directly.
+
+Official source:
+
+```text
+https://usb.org/document-library/hid-usage-tables-17
+```
+
+## Repository Structure
+
+```text
+payloads/
+├── Backdoor/
+├── Instant Shell/
+├── Keylogger/
+├── Payload Dropper/
+├── SAM Dumper/
+├── UAC Bypass/
+├── WiFi Password Stealer/
+├── Windows Crasher/
+└── Windows Phisher/
+```
+
+Additional documentation:
+
+```text
+README.md             Main fork documentation
+README_ORIGINAL.md    Original upstream README
+NOTICE.md             Fork attribution and modification notice
+CHAR_MAPPING.md       Spanish keyboard layout character mapping
+LICENSE               Original upstream license
+```
+
+## Hardware Requirements
+
+* DigiSpark ATTiny85 development board
+* USB port
+* Computer for testing
+* Arduino IDE
+
+## Software Requirements
+
+* Arduino IDE
+* DigiSpark ATTiny85 board support
+* `DigiKeyboard.h` library
+* Windows test environment
+* Spanish keyboard layout for compatibility testing
+
+## Development Environment
+
+The payload adaptations were tested using:
+
+* DigiSpark ATTiny85
+* Arduino IDE
+* Windows environment
+* Spanish keyboard layout
+
+## Usage
+
+This repository is intended for controlled lab environments only.
+
+Do not run these payloads on systems you do not own or do not have explicit permission to test.
+
+Recommended testing setup:
+
+```text
+- Isolated virtual machine
+- Disposable Windows test environment
+- No personal accounts
+- No sensitive data
+- No production systems
+- Explicit authorization
+```
+
+## Important Security Notice
+
+This repository contains offensive security payloads.
+
+Some payloads may simulate or perform actions commonly associated with Red Team operations, such as:
+
+* Automated command execution
+* Credential access simulation
+* Privilege-related testing
+* HID-based execution chains
+* Remote shell behavior
+* Payload delivery testing
+
+They must only be used in:
+
+* Personal labs
+* Authorized penetration tests
+* Red Team exercises
+* Educational environments
+* Systems where you have explicit permission
+
+## Legal and Ethical Disclaimer
+
+This project is provided for educational and authorized security testing purposes only.
+
+The author of this fork does not condone unauthorized access, credential theft, persistence, phishing, malware deployment, or any activity performed against systems without explicit permission.
+
+You are responsible for complying with all applicable laws, regulations, platform rules, and engagement scopes.
+
+Use this repository only in environments where you are legally authorized to perform security testing.
+
+## Upstream Project
+
+Original project:
+
+```text
+https://github.com/MTK911/Attiny85
+```
+
+This repository is a fork with modifications focused on Spanish keyboard layout compatibility.
+
+## References
+
+DigiKeyboard implementation:
+
+```text
+https://github.com/digistump/DigistumpArduino/blob/master/digistump-avr/libraries/DigisparkKeyboard/DigiKeyboard.h
+```
+
+USB HID Usage Tables:
+
+```text
+https://usb.org/document-library/hid-usage-tables-17
+```
+
+Spanish keyboard layout mapping documentation:
+
+```text
+CHAR_MAPPING.md
+```
+
+## License
+
+This project keeps the original upstream license.
+
+Original license: GNU Lesser General Public License v3.0.
+
+See the `LICENSE` file for details.
+
+## Notice
+
+This fork includes modifications by `bruhMomentFixer` focused on Spanish keyboard layout adaptation, testing, and documentation.
+
+Original payloads and project structure come from the upstream `MTK911/Attiny85` repository.
